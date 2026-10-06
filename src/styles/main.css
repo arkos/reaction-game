@@ -1,0 +1,318 @@
+/* Palette mirrored in src/config/colors.js; tests/designTokens.test.js checks they match. */
+:root {
+  --bg: #0F1115;
+  --surface: #1A1D24;
+  --text: #F2F4F7;
+  --muted: #9AA3B2;
+  --accent: #7C5CFF;
+  --wait: #2B2F6B;
+  --go: #2EE59D;
+  --early: #FF6B6B;
+
+  --surface-glass: rgb(26 29 36 / 0.8);
+  --wait-glass: rgb(43 47 107 / 0.94);
+  --on-bright: #0F1115; /* text on mint/coral: ≥ 6.8:1 contrast */
+  --border: rgb(255 255 255 / 0.08);
+
+  --font-heading: 'Space Grotesk', system-ui, sans-serif;
+  --font-body: 'Inter', system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif;
+  --radius: 20px;
+  --ui-transition: 120ms ease-out; /* all UI transitions stay under 150 ms */
+
+  color-scheme: dark;
+}
+
+*,
+*::before,
+*::after {
+  box-sizing: border-box;
+}
+
+html,
+body {
+  height: 100%;
+}
+
+body {
+  margin: 0;
+  overflow: hidden;
+  overscroll-behavior: none;
+  background: var(--bg);
+  color: var(--text);
+  font-family: var(--font-body);
+  line-height: 1.4;
+  -webkit-font-smoothing: antialiased;
+  -webkit-tap-highlight-color: transparent;
+  -webkit-touch-callout: none;
+  user-select: none;
+  -webkit-user-select: none;
+}
+
+/* ---------- Background layers ---------- */
+
+.backdrop {
+  position: fixed;
+  inset: 0;
+  background-color: var(--bg);
+  background-image: radial-gradient(circle at 50% 32%, rgb(124 92 255 / 0.22), transparent 60%);
+  transition: background-color var(--ui-transition);
+}
+
+/* Fallback state colors. Hidden behind the opaque WebGL canvas when 3D runs. */
+[data-state='waiting'] .backdrop {
+  background-color: var(--wait);
+  background-image: none;
+}
+
+[data-state='go'] .backdrop {
+  background-color: var(--go);
+  background-image: none;
+  transition: none; /* the cue is never eased in */
+}
+
+[data-state='tooSoon'] .backdrop {
+  background-color: var(--early);
+  background-image: none;
+}
+
+.scene {
+  position: fixed;
+  inset: 0;
+  display: block;
+  width: 100%;
+  height: 100%;
+}
+
+.no-webgl .scene {
+  display: none;
+}
+
+/* ---------- Interaction layer ---------- */
+
+.play-surface {
+  position: fixed;
+  inset: 0;
+  z-index: 1;
+  width: 100%;
+  height: 100%;
+  margin: 0;
+  padding: 0;
+  border: 0;
+  background: transparent;
+  cursor: pointer;
+  touch-action: manipulation; /* no double-tap zoom */
+}
+
+.play-surface:focus {
+  outline: none; /* the focus ring is drawn on the card instead */
+}
+
+/* ---------- Visual layout (taps pass through to the play surface) ---------- */
+
+.layout {
+  position: relative;
+  z-index: 2;
+  display: grid;
+  grid-template-rows: auto 1fr auto auto;
+  gap: clamp(12px, 2vh, 20px);
+  width: 100%;
+  max-width: 640px;
+  height: 100vh;
+  height: 100dvh;
+  margin: 0 auto;
+  padding: max(16px, env(safe-area-inset-top)) max(16px, env(safe-area-inset-right))
+    max(16px, env(safe-area-inset-bottom)) max(16px, env(safe-area-inset-left));
+  pointer-events: none;
+}
+
+.header {
+  text-align: center;
+}
+
+.title {
+  margin: 0;
+  font-family: var(--font-heading);
+  font-size: clamp(1.5rem, 4.5vw, 2rem);
+  font-weight: 700;
+  letter-spacing: -0.01em;
+}
+
+.tagline {
+  margin: 0.15rem 0 0;
+  color: var(--muted);
+  font-size: 0.95rem;
+}
+
+/* Without WebGL the page itself turns mint/coral, so header text flips dark for AA contrast. */
+:root:not(.webgl)[data-state='go'] .header,
+:root:not(.webgl)[data-state='go'] .tagline,
+:root:not(.webgl)[data-state='tooSoon'] .header,
+:root:not(.webgl)[data-state='tooSoon'] .tagline {
+  color: var(--on-bright);
+}
+
+/* ---------- Status card ---------- */
+
+.card {
+  padding: clamp(16px, 3vh, 28px) clamp(16px, 4vw, 32px);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  background: var(--surface-glass);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  text-align: center;
+  outline: 3px solid transparent;
+  outline-offset: 4px;
+  transition:
+    background-color var(--ui-transition),
+    color var(--ui-transition),
+    border-color var(--ui-transition);
+}
+
+.play-surface:focus-visible ~ .layout .card {
+  outline-color: var(--accent);
+}
+
+[data-state='waiting'] .card {
+  background: var(--wait-glass);
+}
+
+/* The DOM cue: dark → bright mint with new text, applied instantly. */
+[data-state='go'] .card {
+  border-color: transparent;
+  background: var(--go);
+  color: var(--on-bright);
+  transition: none;
+}
+
+[data-state='tooSoon'] .card {
+  border-color: transparent;
+  background: var(--early);
+  color: var(--on-bright);
+}
+
+.status-label {
+  margin: 0;
+  color: var(--muted);
+  font-size: 0.8rem;
+  font-weight: 600;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+}
+
+[data-state='go'] .status-label,
+[data-state='tooSoon'] .status-label {
+  color: var(--on-bright);
+}
+
+.display {
+  height: 1.1em; /* fixed: swapping words/digits never shifts layout */
+  margin: 0.2em 0;
+  overflow: hidden;
+  font-size: clamp(3rem, 13vw, 6.25rem);
+  font-weight: 700;
+  font-variant-numeric: tabular-nums;
+  font-feature-settings: 'tnum';
+  line-height: 1.1;
+  letter-spacing: -0.02em;
+  white-space: nowrap;
+}
+
+.message {
+  margin: 0;
+  min-height: 2.8em; /* reserve two lines */
+  font-size: 1rem;
+}
+
+.hint {
+  min-height: 1.4em;
+  margin: 0.35rem 0 0;
+  color: var(--muted);
+  font-size: 0.9rem;
+}
+
+[data-state='go'] .hint,
+[data-state='tooSoon'] .hint {
+  color: var(--on-bright);
+}
+
+/* ---------- Stats ---------- */
+
+.stats {
+  padding: 12px 16px;
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  background: var(--surface-glass);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+}
+
+.stats-list {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 8px;
+  margin: 0;
+  text-align: center;
+}
+
+.stat dt {
+  color: var(--muted);
+  font-size: 0.72rem;
+  font-weight: 600;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+}
+
+.stat dd {
+  margin: 0.15rem 0 0;
+  font-size: 1.15rem;
+  font-weight: 600;
+  font-variant-numeric: tabular-nums;
+  white-space: nowrap;
+}
+
+@media (max-width: 420px) {
+  .stats-list {
+    grid-template-columns: repeat(2, 1fr);
+    row-gap: 10px;
+  }
+}
+
+@media (max-height: 560px) {
+  .tagline {
+    display: none;
+  }
+}
+
+/* ---------- Utilities ---------- */
+
+.visually-hidden {
+  position: absolute !important;
+  width: 1px;
+  height: 1px;
+  margin: -1px;
+  padding: 0;
+  overflow: hidden;
+  clip: rect(0 0 0 0);
+  white-space: nowrap;
+  border: 0;
+}
+
+.noscript {
+  position: fixed;
+  inset: auto 16px 16px;
+  z-index: 3;
+  padding: 12px 16px;
+  border-radius: 12px;
+  background: var(--surface);
+  text-align: center;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    transition: none !important;
+    animation: none !important;
+  }
+}

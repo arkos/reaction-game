@@ -1,0 +1,25 @@
+{
+  "name": "reaction-timer-3d",
+  "version": "1.0.0",
+  "description": "A precise, accessible reaction timer game with a reactive Three.js scene.",
+  "private": true,
+  "type": "module",
+  "license": "MIT",
+  "engines": {
+    "node": ">=18.18"
+  },
+  "scripts": {
+    "dev": "vite",
+    "build": "vite build",
+    "preview": "vite preview",
+    "test": "vitest run",
+    "test:watch": "vitest"
+  },
+  "dependencies": {
+    "three": "^0.170.0"
+  },
+  "devDependencies": {
+    "vite": "^6.0.0",
+    "vitest": "^2.1.8"
+  }
+}

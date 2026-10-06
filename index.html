@@ -1,0 +1,84 @@
+<!doctype html>
+<html lang="en" data-state="idle">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+    <meta name="theme-color" content="#0F1115" />
+    <meta
+      name="description"
+      content="How fast are your reflexes? A precise, accessible reaction timer with a reactive 3D scene."
+    />
+    <title>Reaction Timer: test your reflexes</title>
+    <link rel="icon" href="favicon.svg" type="image/svg+xml" />
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      rel="stylesheet"
+      href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Space+Grotesk:wght@600;700&display=swap"
+    />
+    <script type="module" src="/src/main.js"></script>
+  </head>
+  <body>
+    <!-- CSS-only background: the fallback when WebGL is unavailable (same state colors). -->
+    <div class="backdrop" aria-hidden="true"></div>
+    <canvas id="scene" class="scene" aria-hidden="true"></canvas>
+
+    <main class="app">
+      <!-- One full-screen button = the whole screen is the reaction pad.
+           Its accessible name/description come from the visible status card. -->
+      <button
+        id="play-surface"
+        class="play-surface"
+        type="button"
+        aria-labelledby="status-label display"
+        aria-describedby="message hint"
+      ></button>
+
+      <!-- Visual layer above the button; pointer-events: none lets taps fall through. -->
+      <div class="layout">
+        <header class="header">
+          <h1 class="title">Reaction Timer</h1>
+          <p class="tagline">How fast are your reflexes?</p>
+        </header>
+
+        <div class="stage" aria-hidden="true"></div>
+
+        <section class="card" aria-label="Round status">
+          <p id="status-label" class="status-label">Reaction test</p>
+          <p id="display" class="display">Ready</p>
+          <p id="message" class="message">Wait for the cue, then respond as fast as you can.</p>
+          <p id="hint" class="hint">Tap, click, or press Space to start</p>
+        </section>
+
+        <section class="stats" aria-labelledby="stats-heading">
+          <h2 id="stats-heading" class="visually-hidden">Session stats</h2>
+          <dl class="stats-list">
+            <div class="stat">
+              <dt>Best</dt>
+              <dd id="stat-best">—</dd>
+            </div>
+            <div class="stat">
+              <dt>Average</dt>
+              <dd id="stat-average">—</dd>
+            </div>
+            <div class="stat">
+              <dt>Rounds</dt>
+              <dd id="stat-rounds">0</dd>
+            </div>
+            <div class="stat">
+              <dt>All-time best</dt>
+              <dd id="stat-personal-best">—</dd>
+            </div>
+          </dl>
+        </section>
+      </div>
+    </main>
+
+    <!-- Announces state changes and results to screen readers. -->
+    <p id="announcer" class="visually-hidden" aria-live="assertive" aria-atomic="true"></p>
+
+    <noscript>
+      <p class="noscript">This game needs JavaScript to measure your reaction time.</p>
+    </noscript>
+  </body>
+</html>
